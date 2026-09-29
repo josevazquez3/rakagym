@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  USUARIO
+}
+
+enum InquiryStatus {
+  NUEVA
+  LEIDA
+  RESUELTA
+}
+
+enum TransactionType {
+  INGRESO
+  EGRESO
+}
+
+enum TransactionStatus {
+  PENDIENTE
+  PAGADO
+  ANULADO
+}
+
+model User {
+  id           String   @id @default(cuid())
+  nombre       String
+  apellido     String
+  email        String   @unique
+  passwordHash String
+  rol          Role     @default(USUARIO)
+  celular      String?
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  routinesCreated Routine[]           @relation("RoutineAuthor")
+  assignments     RoutineAssignment[]
+  transactions    Transaction[]
+
+  @@index([activo])
+  @@index([rol])
+}
+
+model Inquiry {
+  id                 String        @id @default(cuid())
+  nombre             String
+  apellido           String
+  email              String
+  celular            String
+  tieneProblemaSalud Boolean
+  detalleSalud       String?
+  consulta           String
+  estado             InquiryStatus @default(NUEVA)
+  createdAt          DateTime      @default(now())
+
+  @@index([estado])
+  @@index([createdAt])
+}
+
+model CarouselImage {
+  id     String  @id @default(cuid())
+  url    String
+  alt    String
+  orden  Int
+  activo Boolean @default(true)
+
+  @@index([activo, orden])
+}
+
+model Routine {
+  id          String              @id @default(cuid())
+  titulo      String
+  descripcion String
+  contenido   String              @db.Text
+  createdById String
+  createdBy   User                @relation("RoutineAuthor", fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt   DateTime            @default(now())
+  assignments RoutineAssignment[]
+
+  @@index([createdById])
+}
+
+model RoutineAssignment {
+  userId     String
+  routineId  String
+  assignedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  routine    Routine  @relation(fields: [routineId], references: [id], onDelete: Cascade)
+
+  @@id([userId, routineId])
+  @@index([routineId])
+}
+
+model Transaction {
+  id        String            @id @default(cuid())
+  userId    String?
+  user      User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tipo      TransactionType
+  concepto  String
+  monto     Decimal           @db.Decimal(12, 2)
+  fecha     DateTime
+  estado    TransactionStatus @default(PENDIENTE)
+  createdAt DateTime          @default(now())
+
+  @@index([userId])
+  @@index([fecha])
+  @@index([estado])
+  @@index([tipo])
+}
