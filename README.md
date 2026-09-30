@@ -27,7 +27,7 @@ Copiá `.env.example` a `.env` y completá:
 | Variable | Uso |
 | --- | --- |
 | `DATABASE_URL` | Connection string pooled de Neon |
-| `DIRECT_URL` | Connection string directa de Neon (migraciones) |
+| `DATABASE_URL_UNPOOLED` | Connection string directa de Neon (migraciones) |
 | `AUTH_SECRET` | Secreto de la sesión. Generala con `openssl rand -base64 32` |
 | `AUTH_URL` | URL pública de la app (`http://localhost:3000` en local) |
 | `BLOB_READ_WRITE_TOKEN` | Token del store de Vercel Blob |
@@ -49,7 +49,7 @@ El seed crea el administrador solo si ese email no existe. No pisa la contraseñ
 
 ## Deploy en Vercel
 
-1. Creá un proyecto de Neon y copiá la URL pooled en `DATABASE_URL` y la directa en `DIRECT_URL`.
+1. Creá un proyecto de Neon y copiá la URL pooled en `DATABASE_URL` y la directa en `DATABASE_URL_UNPOOLED`.
 2. En Vercel, importá el repositorio y cargá todas las variables de `.env.example`. `AUTH_URL` tiene que ser la URL de producción.
 3. Creá un Blob store en el proyecto de Vercel y pegá el token en `BLOB_READ_WRITE_TOKEN`.
 4. El build ejecuta `prisma generate && next build`.

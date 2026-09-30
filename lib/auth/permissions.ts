@@ -12,8 +12,16 @@ export class AuthzError extends Error {
   }
 }
 
+async function readSession() {
+  try {
+    return await auth();
+  } catch {
+    return null;
+  }
+}
+
 export async function requireRole(roles: readonly Role[]) {
-  const session = await auth();
+  const session = await readSession();
   if (!session?.user?.id) {
     throw new AuthzError("UNAUTHENTICATED");
   }
@@ -24,7 +32,7 @@ export async function requireRole(roles: readonly Role[]) {
 }
 
 export async function requirePageRole(roles: readonly Role[]) {
-  const session = await auth();
+  const session = await readSession();
   if (!session?.user?.id) redirect("/login");
   if (!roles.includes(session.user.role)) redirect("/panel");
   return session;

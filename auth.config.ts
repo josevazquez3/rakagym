@@ -2,11 +2,10 @@ import type { NextAuthConfig } from "next-auth";
 import { ADMIN_ROUTES, PROTECTED_ROUTES, matchesRoute } from "@/lib/auth/routes";
 
 const devSecret = "raka-gym-local-dev-secret";
+const configuredSecret = process.env.AUTH_SECRET?.trim();
 
 export const authConfig = {
-  secret:
-    process.env.AUTH_SECRET ??
-    (process.env.NODE_ENV === "production" ? undefined : devSecret),
+  secret: configuredSecret || (process.env.NODE_ENV === "production" ? undefined : devSecret),
   trustHost: true,
   pages: {
     signIn: "/login",
