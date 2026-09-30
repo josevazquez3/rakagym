@@ -73,6 +73,7 @@ export function UsersManager({
     resolver: zodResolver(createUserSchema),
     defaultValues: createDefaults,
   });
+  const createRole = createForm.watch("rol");
   const editForm = useForm<UpdateValues>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: { nombre: "", apellido: "", email: "", celular: "", rol: "USUARIO" },
@@ -81,6 +82,12 @@ export function UsersManager({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: { password: "" },
   });
+
+  function openCreate(rol: CreateValues["rol"]) {
+    setFormError(undefined);
+    createForm.reset({ ...createDefaults, rol });
+    setCreateOpen(true);
+  }
 
   function openEdit(user: UserListItem) {
     setFormError(undefined);
@@ -177,16 +184,14 @@ export function UsersManager({
         title="Padrón"
         description={`${total} usuario${total === 1 ? "" : "s"} en el resultado.`}
         action={
-          <Button
-            type="button"
-            onClick={() => {
-              setFormError(undefined);
-              createForm.reset(createDefaults);
-              setCreateOpen(true);
-            }}
-          >
-            Alta
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="outline" onClick={() => openCreate("USUARIO")}>
+              Nuevo socio
+            </Button>
+            <Button type="button" onClick={() => openCreate("ADMIN")}>
+              Nuevo administrador
+            </Button>
+          </div>
         }
       />
 
@@ -313,8 +318,12 @@ export function UsersManager({
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Alta de usuario</DialogTitle>
-            <DialogDescription>La contraseña se guarda cifrada y no vuelve a mostrarse.</DialogDescription>
+            <DialogTitle>{createRole === "ADMIN" ? "Alta de administrador" : "Alta de socio"}</DialogTitle>
+            <DialogDescription>
+              {createRole === "ADMIN"
+                ? "Va a poder gestionar padrón, rutinas, tesorería, consultas y carrusel. La contraseña se guarda cifrada."
+                : "El socio ve sus rutinas y su perfil. La contraseña se guarda cifrada."}
+            </DialogDescription>
           </DialogHeader>
           <form className="space-y-3" noValidate onSubmit={createForm.handleSubmit(submitCreate)}>
             <FormAlert message={formError} />
