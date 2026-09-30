@@ -1,0 +1,3 @@
+ALTER TABLE "Inquiry" ADD COLUMN "dni" TEXT;
+UPDATE "Inquiry" SET "dni" = '' WHERE "dni" IS NULL;
+ALTER TABLE "Inquiry" ALTER COLUMN "dni" SET NOT NULL;

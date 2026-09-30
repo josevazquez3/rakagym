@@ -36,7 +36,6 @@ export const metadata: Metadata = {
     template: "%s · RAKA GYM",
   },
   description: "Fuerza - Rendimiento & Boxeo",
-  icons: { icon: "/brand/logo.png" },
 };
 
 export const viewport: Viewport = {

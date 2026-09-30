@@ -6,6 +6,7 @@ import { inquirySchema } from "@/lib/validations/inquiry";
 import { getClientIp } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
 import { handleActionError, zodFailure, type ActionResult } from "@/lib/action";
+import { emptyToNull } from "@/lib/utils";
 
 export async function createInquiry(input: unknown): Promise<ActionResult> {
   try {
@@ -21,11 +22,23 @@ export async function createInquiry(input: unknown): Promise<ActionResult> {
     const parsed = inquirySchema.safeParse(input);
     if (!parsed.success) return zodFailure(parsed.error);
 
+    if (!process.env.DATABASE_URL) {
+      return {
+        ok: false,
+        error: "No se pudo enviar la consulta porque la base de datos no está configurada.",
+      };
+    }
+
     const hasHealthIssue = parsed.data.tieneProblemaSalud === "si";
     await prisma.inquiry.create({
       data: {
         nombre: parsed.data.nombre,
         apellido: parsed.data.apellido,
+        dni: parsed.data.dni,
+        calle: parsed.data.calle,
+        numero: parsed.data.numero,
+        piso: emptyToNull(parsed.data.piso),
+        dpto: emptyToNull(parsed.data.dpto),
         email: parsed.data.email.toLowerCase(),
         celular: parsed.data.celular,
         tieneProblemaSalud: hasHealthIssue,

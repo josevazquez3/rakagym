@@ -11,6 +11,8 @@
   --gold-light: #FFC94D;
   --gold-dark: #D9822B;
   --ember: #B5451B;
+  --green: #22C55E;
+  --green-dark: #16A34A;
   --foreground: #FFFFFF;
   --muted: #A3A3A3;
   --brand-gradient: linear-gradient(
@@ -39,6 +41,10 @@ body {
 :focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
+}
+
+.inquiry-green :focus-visible {
+  outline-color: var(--green);
 }
 
 .brand-grain {

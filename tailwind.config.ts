@@ -19,6 +19,10 @@ const config: Config = {
           dark: "var(--gold-dark)",
         },
         ember: "var(--ember)",
+        green: {
+          DEFAULT: "var(--green)",
+          dark: "var(--green-dark)",
+        },
         foreground: "var(--foreground)",
         muted: "var(--muted)",
       },

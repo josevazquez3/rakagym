@@ -54,6 +54,11 @@ model Inquiry {
   id                 String        @id @default(cuid())
   nombre             String
   apellido           String
+  dni                String
+  calle              String
+  numero             String
+  piso               String?
+  dpto               String?
   email              String
   celular            String
   tieneProblemaSalud Boolean

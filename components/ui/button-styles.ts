@@ -7,6 +7,7 @@ export const buttonVariants = cva(
       variant: {
         default: "bg-brand-gradient text-black hover:-translate-y-0.5 hover:shadow-gold",
         outline: "border border-gold bg-transparent text-gold hover:bg-gold/10",
+        green: "bg-green text-black hover:-translate-y-0.5 hover:bg-green-dark",
         ghost: "bg-transparent text-foreground hover:bg-surface-2",
         danger: "bg-ember text-white hover:opacity-90",
       },

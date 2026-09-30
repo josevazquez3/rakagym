@@ -17,6 +17,11 @@ export type InquiryItem = {
   id: string;
   nombre: string;
   apellido: string;
+  dni: string;
+  calle: string;
+  numero: string;
+  piso: string | null;
+  dpto: string | null;
   email: string;
   celular: string;
   tieneProblemaSalud: boolean;
@@ -94,7 +99,15 @@ export function InquiriesManager({
                     </p>
                     <p className="text-sm text-muted">
                       {item.email} · {item.celular}
+                      {item.dni ? ` · DNI ${item.dni}` : ""}
                     </p>
+                    {item.calle ? (
+                      <p className="text-sm text-muted">
+                        {item.calle} {item.numero}
+                        {item.piso ? `, piso ${item.piso}` : ""}
+                        {item.dpto ? `, dpto ${item.dpto}` : ""}
+                      </p>
+                    ) : null}
                     <p className="text-xs text-muted">{formatDateTime(item.createdAt)}</p>
                   </div>
                   <Badge tone={item.estado === "NUEVA" ? "solid" : item.estado === "RESUELTA" ? "muted" : "gold"}>
@@ -106,7 +119,7 @@ export function InquiriesManager({
                     Problema de salud: {item.detalleSalud}
                   </p>
                 ) : null}
-                <p className="mt-3 whitespace-pre-wrap text-sm">{item.consulta}</p>
+                {item.consulta ? <p className="mt-3 whitespace-pre-wrap text-sm">{item.consulta}</p> : null}
                 <div className="mt-4 flex flex-wrap gap-2">
                   {statuses.map((status) => (
                     <Button
