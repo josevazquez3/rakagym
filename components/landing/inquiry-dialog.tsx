@@ -8,6 +8,7 @@ import type { z } from "zod";
 import { inquirySchema } from "@/lib/validations/inquiry";
 import { applyFieldErrors } from "@/lib/forms";
 import { createInquiry } from "@/app/(public)/actions";
+import { downloadEnrollmentDocument, formatDeviceDate, formatDomicilio } from "@/lib/enrollment-docx";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -37,11 +38,12 @@ const defaults: FormValues = {
   consulta: "",
 };
 
-export function InquiryDialog() {
+export function InquiryDialog({ trigger = "both" }: { trigger?: "both" | "empezar" }) {
   const [open, setOpen] = useState(false);
   const [thanksOpen, setThanksOpen] = useState(false);
   const [accent, setAccent] = useState<"gold" | "green">("gold");
   const [pending, setPending] = useState(false);
+  const [planillaPending, setPlanillaPending] = useState(false);
   const [formError, setFormError] = useState<string>();
   const form = useForm<FormValues>({
     resolver: zodResolver(inquirySchema),
@@ -49,6 +51,30 @@ export function InquiryDialog() {
   });
   const health = form.watch("tieneProblemaSalud");
   const consulta = form.watch("consulta");
+
+  async function onPlanilla() {
+    const valid = await form.trigger(["nombre", "apellido", "dni", "calle", "numero"]);
+    if (!valid) {
+      toast.error("Completá nombre, apellido, DNI y dirección para armar la planilla");
+      return;
+    }
+    const values = form.getValues();
+    setPlanillaPending(true);
+    try {
+      await downloadEnrollmentDocument({
+        nombre: values.nombre,
+        apellido: values.apellido,
+        dni: values.dni.replace(/\D/g, ""),
+        domicilio: formatDomicilio(values),
+        fecha: formatDeviceDate(new Date()),
+      });
+      toast.success("La planilla está lista. Abrila con Word.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo abrir la planilla.");
+    } finally {
+      setPlanillaPending(false);
+    }
+  }
 
   async function onSubmit(values: FormValues) {
     setPending(true);
@@ -73,16 +99,18 @@ export function InquiryDialog() {
     <>
     <Dialog open={open} onOpenChange={setOpen}>
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <Button
-          type="button"
-          size="lg"
-          onClick={() => {
-            setAccent("gold");
-            setOpen(true);
-          }}
-        >
-          Consultas
-        </Button>
+        {trigger === "both" ? (
+          <Button
+            type="button"
+            size="lg"
+            onClick={() => {
+              setAccent("gold");
+              setOpen(true);
+            }}
+          >
+            Consultas
+          </Button>
+        ) : null}
         <Button
           type="button"
           size="lg"
@@ -97,7 +125,7 @@ export function InquiryDialog() {
       </div>
       <DialogContent className={accent === "green" ? "shadow-[0_0_24px_color-mix(in_srgb,var(--green)_28%,transparent)]" : undefined}>
         <DialogHeader>
-          <DialogTitle>Consulta</DialogTitle>
+          <DialogTitle>{accent === "green" ? "Quiero empezar" : "Consulta"}</DialogTitle>
           <DialogDescription>Dejanos tus datos y te contactamos desde RAKA GYM.</DialogDescription>
         </DialogHeader>
         <form
@@ -157,10 +185,16 @@ export function InquiryDialog() {
               <Input id="detalleSalud" aria-invalid={Boolean(form.formState.errors.detalleSalud)} {...form.register("detalleSalud")} />
             </Field>
           ) : null}
-          <Field label="Consulta" htmlFor="consulta" error={form.formState.errors.consulta?.message}>
-            <Textarea id="consulta" maxLength={1000} aria-invalid={Boolean(form.formState.errors.consulta)} {...form.register("consulta")} />
-            <p className="text-right text-xs text-muted">{consulta.length}/1000</p>
-          </Field>
+          {accent === "green" ? (
+            <Button type="button" className="w-full" variant="green" disabled={planillaPending} onClick={onPlanilla}>
+              {planillaPending ? "Abriendo planilla..." : "Planilla de inscripción"}
+            </Button>
+          ) : (
+            <Field label="Consulta" htmlFor="consulta" error={form.formState.errors.consulta?.message}>
+              <Textarea id="consulta" maxLength={1000} aria-invalid={Boolean(form.formState.errors.consulta)} {...form.register("consulta")} />
+              <p className="text-right text-xs text-muted">{consulta.length}/1000</p>
+            </Field>
+          )}
           <FormAlert message={formError} />
           <Button type="submit" className="w-full" variant={accent === "green" ? "green" : "default"} disabled={pending}>
             {pending ? "Enviando..." : "Enviar"}

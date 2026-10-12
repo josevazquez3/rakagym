@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Dumbbell, Zap } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { BoxingGlove } from "@/components/brand/boxing-glove";
@@ -6,6 +7,7 @@ import { Header } from "@/components/landing/header";
 import { HeroCarousel } from "@/components/landing/hero-carousel";
 import { InquiryDialog } from "@/components/landing/inquiry-dialog";
 import { SectionTitle } from "@/components/landing/section-title";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
@@ -51,23 +53,31 @@ export default async function HomePage() {
       <main id="contenido">
         <HeroCarousel images={slides} />
         <section className="brand-grain border-y border-border bg-surface">
-          <div className="relative z-[1] mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 py-16 text-center">
+          <div className="relative z-[1] mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-16 text-center">
             <SectionTitle>Entrená en RAKA</SectionTitle>
             <p className="max-w-2xl text-base text-muted sm:text-lg">
               Fuerza, rendimiento y boxeo en un mismo lugar. Escribinos y te respondemos para coordinar tu primera clase.
             </p>
-            <InquiryDialog />
-            <ul className="grid w-full gap-4 text-left sm:grid-cols-3">
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Button asChild size="lg">
+                <Link href="/boxeo">Boxeo</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/fuerza">Fuerza</Link>
+              </Button>
+            </div>
+            <ul className="grid w-full gap-5 text-left sm:grid-cols-3">
               {pillars.map((pillar) => (
                 <li key={pillar.title}>
-                  <Card interactive className="h-full p-5">
-                    <pillar.icon className="h-6 w-6 text-gold" />
-                    <h3 className="mt-3 font-condensed text-lg font-bold uppercase tracking-wide">{pillar.title}</h3>
-                    <p className="mt-2 text-sm text-muted">{pillar.text}</p>
+                  <Card interactive className="h-full p-8 sm:min-h-56 sm:p-10">
+                    <pillar.icon className="h-8 w-8 text-gold" />
+                    <h3 className="mt-5 font-condensed text-2xl font-bold uppercase tracking-wide">{pillar.title}</h3>
+                    <p className="mt-3 text-base text-muted">{pillar.text}</p>
                   </Card>
                 </li>
               ))}
             </ul>
+            <InquiryDialog />
           </div>
         </section>
       </main>
